@@ -35,8 +35,9 @@ export default function Signup() {
             setisloading(true)
             seterror("")
             try{
-              const data = await apiServices.signup(registerData) 
-                addToast({
+              const {data}= await axios.post("https://route-posts.routemisr.com/users/signup",registerData)
+
+                 addToast({
               title: "Success",
               description: "Email is created",
               color:  "success",
