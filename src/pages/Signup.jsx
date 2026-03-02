@@ -8,8 +8,7 @@ import  { zodResolver} from "@hookform/resolvers/zod"
 import  axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 import { inputProps } from '../component/getInputProps.js'
-import { apiServices } from '../services/api.js'
-   
+    
 export default function Signup() {
     const[isloading,setisloading]=useState()
 
