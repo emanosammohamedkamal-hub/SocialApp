@@ -1,6 +1,5 @@
  import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./App.css"
-  import {HeroUIProvider,Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, ToastProvider} from "@heroui/react";
+   import {HeroUIProvider,Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, ToastProvider} from "@heroui/react";
 import MainLayout from "./layout/MainLayout";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
