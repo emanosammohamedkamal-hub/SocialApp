@@ -1,20 +1,39 @@
 import React, { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { authContext } from '../context/Authcontext'
-import { Button, Input } from '@heroui/react'
+import { Button, Input, Spinner } from '@heroui/react'
 import axios from 'axios'
+import photo from'../assets/image.svg'
 
-export default function Comment({post,comment,deletecomment,getposts, isload}) {
+export default function Comment({post,comment, getposts, isload}) {
   const{user,token}=useContext(authContext)
     const [isediting,setisediting]=useState(false)
     const[editvalue,seteditvalue]=useState(comment.content)
+        const[editimage,setedimage]=useState()
+        const [imageshow,setImageshow]=useState(comment.image)
+
     const[load,setisload]=useState(false)
+
+ async function deletecomment(CommentId) {
+          setisload(true)
+      const{data}=await axios.delete(`https://route-posts.routemisr.com/posts/${post._id}/comments/${CommentId}`,{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+
+      })
+      await getposts() 
+        setisload(false)
+
+       }
 
 
     async function editComment(){
+      setisload(true)
       const formatdata=new FormData()
       formatdata.set("content",editvalue)
-      
+            formatdata.set("image",editimage)
+
        const{data}=await axios.put(`https://route-posts.routemisr.com/posts/${post._id}/comments/${comment._id}`,formatdata,{
         headers:{
           Authorization:`Bearer ${token}`
@@ -25,9 +44,17 @@ export default function Comment({post,comment,deletecomment,getposts, isload}) {
 
      await getposts()
        setisediting(false)
+       setisload(false)
     } 
 
+  function handleimage(e){
+      if(e.target.files[0]){
+      setedimage(e.target.files[0])
+      const url= URL.createObjectURL(e.target.files[0])
+      setImageshow(url) 
+      }
 
+    }
   console.log(comment)
     return<>
    
@@ -35,7 +62,7 @@ export default function Comment({post,comment,deletecomment,getposts, isload}) {
       
       
       <div className="media flex pb-4">
-      <a className="mr-4" href="#">
+       <a className="mr-4" href="#">
         <img className="rounded-full max-w-none w-12 h-12" src= { comment.commentCreator.photo} />
       </a>
 
@@ -49,14 +76,24 @@ export default function Comment({post,comment,deletecomment,getposts, isload}) {
        {isediting?
        <div>
          <div className='flex gap-3 justify-end'>
-                <Button className='bg-primary' onPress={editComment}>edit</Button>
-                <Button utton className='bg-red-400' onPress={function(){setisediting(false) 
+                <Button  isLoading={load} className='bg-primary' onPress={editComment}>edit</Button>
+                <Button  className='bg-red-400' onPress={function(){setisediting(false) 
                   seteditvalue(comment.content)}}>cancel</Button>
                </div>
 
        <Input className='w-100' value={editvalue} onChange={function(e){seteditvalue(e.target.value)}}/>
+         <label>
+                 <div className='flex'>
+                  <img src={photo} className='w-[20px]'/>
+                 <h5>Photo</h5>
+                </div>
+                
+              <input  onChange={function(e){ handleimage(e)}} className='hidden' type='file' accept='image/*'/>
+                       <img src={imageshow} className='w-[150px]'/>
 
                
+            </label>
+                
 
        </div>
 
@@ -64,7 +101,16 @@ export default function Comment({post,comment,deletecomment,getposts, isload}) {
    
         
        
-       :<p>{comment.content}</p>}
+       :
+
+       <div>
+         <p>{comment.content}</p>
+         
+               <img src={comment?.image} className="w-[200px]"/>
+        </div>
+
+       
+       }
         
         <div className="mt-2 flex items-center">
           <a className="inline-flex items-center py-2 mr-3" href="#">
@@ -88,8 +134,8 @@ export default function Comment({post,comment,deletecomment,getposts, isload}) {
 
           {user._id==comment.commentCreator._id&&<button onClick={ function(){ 
             setisediting(true)}}className="py-2 px-4 font-medium rounded-lg">
-             edit
-          </button>}
+              edit
+            </button>}
         </div>
          
       </div>

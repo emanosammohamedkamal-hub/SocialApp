@@ -23,8 +23,7 @@ export default function CreatePost({getposts}) {
         setimage(e.target.files[0])
     const urlImage= URL.createObjectURL(e.target.files[0])
     setimagepreview(urlImage)
-    console.log(urlImage)
-      }
+       }
 
     
   }
@@ -53,8 +52,7 @@ export default function CreatePost({getposts}) {
             
         })
         
-        console.log(data)
-       await getposts()
+        await getposts()
        setimage(null)
        setimagepreview(null)
        setshowform(false)
@@ -95,12 +93,13 @@ onChange={function(e){setcaption(e.target.value)}}
 
              <div className='flex gap-2 '>
                   <Button onPress={function(){setshowform(false)
+                  setcaption("")
                     setimage(null)
                     setimagepreview(null)
                     }}>
                     cancel
                 </Button>
-                <Button isLoading={isloading} type="submit"className='bg-primary'> 
+                <Button   isLoading={isloading} type="submit"className='bg-primary'> 
                     post
                 </Button>
              </div>

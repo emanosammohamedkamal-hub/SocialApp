@@ -1,42 +1,96 @@
-import React, { useContext, useState } from 'react'
+import React, { use, useContext, useState } from 'react'
 import  avatar from '../assets/avatar-portrait-of-a-young-caucasian-boy-man-in-round-blue-frame-illustration-in-cartoon-flat-style-vector.jpg'
 import { Link, useNavigate } from 'react-router-dom'
 import Comment from './Comment'
 import CreateComment from './CreateComment'
 import { authContext } from '../context/Authcontext'
-import { Button } from '@heroui/react'
+import { Button, Input, Spinner, Textarea } from '@heroui/react'
 import axios from 'axios'
+import photo from'../assets/image.svg'
+import close from'../assets/close-circle.svg'
+
 
 export default function Post({post,comment,getposts}) {
  console.log(comment)
-      const{user}=useContext(authContext)
+      const{user,token}=useContext(authContext)
       const [posts,setposts]=useState(null)
-        const[loading,setisloading]=useState(false)
-           const {token}=useContext(authContext)
-        
+      const[isshowform,setisshowform]=useState(false)
+       const[isediet,setisediet]=useState(false)
+
+        const[loading,setloading]=useState(false)
+        const[editcontent,seteditcontent]=useState(post.body)
+                 const[edietimageshow,setedietimageshow]=useState(post.image)
+        const[edietimage,setedietimage]=useState("")
+
+          console.log(editcontent)
 
            const navigaet=useNavigate()
 
-       async function deletePost(){
-      setisloading(true)
-      const{data}=await axios.delete(`https://route-posts.routemisr.com/posts/${post._id}`,{
-        headers:{
-          Authorization:`Bearer ${token}`
+      //  async function deletePost(){
+      // setisloading(true)
+      // const{data}=await axios.delete(`https://route-posts.routemisr.com/posts/${post._id}`,{
+      //   headers:{
+      //     Authorization:`Bearer ${token}`
+      //   }
+      // }) 
+      //  if(comment){
+      //   navigaet("/")
+
+      // }else{
+      //  await  getposts()
+
+      // }
+      //        setisloading(false)
+
+      //  }
+
+
+async function updatepost(e){
+ e.preventDefault();
+ setloading(true)
+ const formdata=new FormData()
+ 
+ if(editcontent){
+  formdata.set("body",editcontent)
+ }
+ if(edietimage){
+  formdata.set("image",edietimage)
+ }
+ const {data}= await axios.put(`https://route-posts.routemisr.com/posts/${post._id}`,formdata,{
+  headers:{
+    Authorization:`Bearer ${token}`
+  }
+ })
+ console.log(data)
+ await getposts()
+ setedietimage(null)
+ setedietimageshow(null)
+ seteditcontent("")
+ setisshowform(false)
+  setloading(false)
+
+}
+
+      async function deletePost(params) {
+        setloading(true)
+        const {data}=await axios.delete(`https://route-posts.routemisr.com/posts/${post._id}`,{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        })
+        if(comment){
+          navigaet("/")
+        }else{
+          getposts()
         }
-      }) 
-       if(comment){
-        navigaet("/")
+        setloading(false)
 
-      }else{
-       await  getposts()
 
+        
       }
-             setisloading(false)
-
-       }
 
        async function deletecomment(CommentId) {
-          setisloading(true)
+          setloading(true)
       const{data}=await axios.delete(`https://route-posts.routemisr.com/posts/${post._id}/comments/${CommentId}`,{
         headers:{
           Authorization:`Bearer ${token}`
@@ -44,19 +98,30 @@ export default function Post({post,comment,getposts}) {
 
       })
       await getposts() 
-        setisloading(false)
+        setloading(false)
 
        }
 
+function handelimage(e){
+  if(e.target.files[0]){
+    setedietimage(e.target.files[0])
+    const url=URL.createObjectURL(e.target.files[0])
+    setedietimageshow(url)
+  }
+}
 
 
+function removeimage(){
+  setedietimage(null)
+  setedietimageshow(null)
+}
         return <>
   {post.body!=null||post.image!=null?  <article className="mb-4 break-inside p-6 rounded-xl bg-white dark:bg-slate-800 flex flex-col bg-clip-border sm:w-3/6 w-full">
        {/* user information */}
 
   <div className="flex pb-6 items-center justify-between">
-  
-     <div className="flex">
+      <div className="flex">
+ 
       <a className="inline-block mr-4" href="#">
         <img className="rounded-full max-w-none w-12 h-12" src= {post.user.photo} onError={(e)=>{e.target.src=avatar}} />
       </a>
@@ -69,17 +134,61 @@ export default function Post({post,comment,getposts}) {
         </div>
       </div>
     </div>
+     {post.user._id==user?._id&&<Button onPress={function(e){setisshowform(true)}}>Ediet</Button>}
 
+   </div>
 
-  </div>
-
+ 
 {/*  post  caption */}
-  {post.body!=undefined? <h2 className="text-3xl font-extrabold dark:text-white">
-     {post.body}
+
+
+  {isshowform?
+  
+  <form onSubmit={updatepost}>
+    <Textarea value={editcontent} onChange={function(e){seteditcontent(e.target.value)}}>
+
+    </Textarea>
+
+  {
+    edietimageshow&&<div className='relative'>
+            
+            <img src={edietimageshow} className="w-150 "/>
+            <button className=' absolute  top-0  left-145 ' onClick={function(){ removeimage()}}>
+                  <img src={close} className='w-[20px] '/>
+            </button> 
+            </div>
+  }
+
+    <label>
+      <input type='file' className='hidden' onChange={handelimage}/>
+        <div className='flex'>
+           <img src={photo} className='w-[30px]'/>
+                       
+                      <p>photo</p>
+        </div>
+
+      
+    </label>
+       <div className='flex gap-3'>
+          <button type='submit'> {loading?<Spinner/> :"update"}</button>
+          <button onClick={function(){
+
+            setisediting(false)
+              seteditcontent(post.body)
+               setedietimageshow(post.image)
+          }}>cancel</button>
+
+
+        </div>
+  </form>  
+  :<div>
+    
+      {post.body!=undefined? <h2 className="text-3xl font-extrabold dark:text-white">
+
+      {post.body}
   </h2>:""}
 
-{/*  post  image */}
-
+ 
   <div className="py-4">
     {post.user._id==user._id&& <Button isLoading={loading} className='bg-red-500 flex ms-auto p-3 rounded-xl mb-2 ' onPress={deletePost}>Delete</Button>
 }
@@ -91,6 +200,8 @@ export default function Post({post,comment,getposts}) {
     </div>
     
   </div>
+    
+    </div>}
 
 
           {/* likes icon */}
@@ -129,7 +240,7 @@ export default function Post({post,comment,getposts}) {
     {/* Comment content */}
 
    <div className="pt-6">
-       {comment? comment.map(function(comment){return<Comment isload={loading} getposts={getposts} comment={comment} deletecomment={deletecomment} post={post}/> }) :post.topComment&&<Comment isload={loading} getposts={getposts} comment={post.topComment} post={post}  deletecomment={deletecomment}/>}
+       {comment? comment.map(function(comment){return<Comment isload={loading} getposts={getposts} comment={comment}  post={post}/> }) :post.topComment&&<Comment isload={loading} getposts={getposts} comment={post.topComment} post={post} />}
 
 
 

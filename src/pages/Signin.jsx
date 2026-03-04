@@ -30,8 +30,7 @@ import { authContext } from './../context/Authcontext';
       const {data}= await axios.post("https://route-posts.routemisr.com/users/signin",loginData)
          localStorage.setItem("token",data.data.token) 
          settoken(data.data.token)
-         console.log(data.data.token)
-          addToast({
+            addToast({
               title: "Success",
               description: "Email is created",
               color:  "success",
