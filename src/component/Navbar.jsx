@@ -19,7 +19,7 @@ import { authContext } from '../context/Authcontext';
   function logout(){
     localStorage.removeItem("token")
      settoken(null)
-  }
+   }
   return (
       <NavbarComponent isBordered>
       <NavbarContent justify="start">

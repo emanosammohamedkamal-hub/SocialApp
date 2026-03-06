@@ -11,31 +11,35 @@ import Signup from "./pages/Signup";
 import ProtectedRoute from "./protectedRoute/ProtectedRoute";
 import Authprotected from "./protectedRoute/authprotected";
 import Authcontext from './context/Authcontext';
- 
+   import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+ import { ReactQueryDevtools } from './../node_modules/@tanstack/react-query-devtools/src/index';
+
 
 function App() {
- const router=createBrowserRouter([
+  const router=createBrowserRouter([
   {path: '', element: <MainLayout/> ,children:[
     {index:true ,element: <ProtectedRoute><Feed/></ProtectedRoute> },
     {path:'profile' ,element: <ProtectedRoute><Profile/></ProtectedRoute> },
-        {path:'postDetails/:id' ,element: <ProtectedRoute><PostDetails/></ProtectedRoute> },
-
+    {path:'postDetails/:id' ,element: <ProtectedRoute><PostDetails/></ProtectedRoute> },
      {path:'*' ,element:<NotFound/> },
 
 
   ]},
 
    {path:'', element: <Authentcation/> ,children:[
-     {path:'signin' ,element: <Authprotected><Signin/></Authprotected> },
-    {path:'signup' ,element:  <Authprotected><Signup/> </Authprotected>},
  
+    {path:'signup' ,element:  <Authprotected><Signup/> </Authprotected>},
+     {path:'signin' ,element: <Authprotected><Signin/></Authprotected> },
+  
 
   ]}
  ])
+ const queryClient= new QueryClient()
   return (
     <>
-
-    <Authcontext>
+ <QueryClientProvider client={queryClient}>
+  <ReactQueryDevtools/>
+ <Authcontext>
 
 
          <HeroUIProvider>
@@ -46,6 +50,8 @@ function App() {
           </HeroUIProvider>
     </Authcontext>
 
+ </QueryClientProvider>
+    
 
     
      </>

@@ -7,7 +7,7 @@ export default function ProtectedRoute({children}) {
   console.log(children)
   const islogged=!!token
  return <>
-{islogged?children:<Navigate to={"/signin"}/> }
+{islogged?children:<Navigate to={"/signup"}/> }
    
   
   </>
